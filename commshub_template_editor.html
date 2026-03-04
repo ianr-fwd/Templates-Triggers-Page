@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommsHub - Template Editor (Enhanced)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.header {
+  background: #0d7377;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.nav {
+  background: #0d7377;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding: 0 24px;
+  display: flex;
+  gap: 24px;
+}
+
+.nav-item {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-item:hover { color: white; }
+.nav-item.active { color: white; border-bottom-color: white; }
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  background: white;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #0d7377;
+  color: white;
+}
+
+.btn-primary:hover { background: #0a5f62; }
+
+.btn-secondary {
+  background: white;
+  color: #0d7377;
+  border: 1px solid #0d7377;
+}
+
+.btn-secondary:hover { background: #f0f9f9; }
+
+.editor-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 20px;
+  align-items: start;
+}
+
+.editor-main {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.editor-section {
+  padding: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.editor-section:last-child { border-bottom: none; }
+
+.editor-section h3 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group textarea {
+  min-height: 200px;
+  font-family: 'Courier New', monospace;
+  line-height: 1.5;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0d7377;
+  box-shadow: 0 0 0 3px rgba(13,115,119,0.1);
+}
+
+.variable-panel {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 24px;
+}
+
+.panel-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.panel-toggle {
+  background: none;
+  border: none;
+  color: #0d7377;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.panel-body {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.variable-category {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.category-header {
+  padding: 12px 16px;
+  background: #f9f9f9;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-header:hover { background: #f5f5f5; }
+
+.category-content {
+  padding: 8px 0;
+}
+
+.variable-item {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.variable-item:hover { background: #f9f9f9; }
+
+.variable-name {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: #0d7377;
+}
+
+.copy-icon {
+  color: #999;
+  font-size: 14px;
+}
+
+.variable-item:hover .copy-icon { color: #0d7377; }
+
+.action-bar {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f9f9f9;
+  border-top: 1px solid #e5e5e5;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: #2c3e50;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.toast.show { display: flex; }
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.show { display: flex; }
+
+.modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover { color: #333; }
+
+.modal-body {
+  padding: 24px;
+  max-height: calc(90vh - 160px);
+  overflow-y: auto;
+}
+
+.preview-email {
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.email-header {
+  background: #f9f9f9;
+  padding: 16px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.email-header-row {
+  display: flex;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.email-header-row:last-child { margin-bottom: 0; }
+
+.email-label {
+  width: 80px;
+  font-weight: 600;
+  color: #666;
+}
+
+.email-value { color: #333; }
+
+.email-body {
+  padding: 24px;
+  background: white;
+  min-height: 200px;
+}
+
+.partner-logo {
+  width: 150px;
+  height: 40px;
+  background: #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #999;
+}
+
+.validation-error {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 12px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #856404;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📬 CommsHub Notification Management</h1>
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <span style="font-size: 14px;">Previewing: Latest</span>
+  </div>
+</div>
+
+<nav class="nav">
+  <a href="#" class="nav-item">Home</a>
+  <a href="#" class="nav-item active">Templates</a>
+  <a href="#" class="nav-item">Notifications</a>
+  <a href="#" class="nav-item">Partner Settings</a>
+  <a href="#" class="nav-item">Business View</a>
+</nav>
+
+<div class="container">
+  
+  <div class="page-header">
+    <h2>Create New Template</h2>
+    <div style="display: flex; gap: 12px;">
+      <button class="btn btn-secondary" onclick="showPreview()">👁 Preview</button>
+      <button class="btn btn-primary" onclick="saveTemplate()">💾 Save Template</button>
+    </div>
+  </div>
+
+  <div class="editor-layout">
+    
+    <!-- Main Editor -->
+    <div class="editor-main">
+      
+      <div class="editor-section">
+        <h3>Template Details</h3>
+        <div class="form-group">
+          <label>Notification Type *</label>
+          <select id="notifType">
+            <option value="">Select notification type...</option>
+            <option value="document_request">Document Request</option>
+            <option value="application_approved">Application Approved</option>
+            <option value="payment_receipt">Payment Receipt</option>
+            <option value="step_up">Identity Verification</option>
+            <option value="account_status">Account Status Update</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>Template Name *</label>
+          <input type="text" id="templateName" placeholder="e.g., Document Request - Drivers License" />
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select>
+            <option value="onboarding">Onboarding</option>
+            <option value="transactional">Transactional</option>
+            <option value="account_management">Account Management</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="editor-section">
+        <h3>Email Content</h3>
+        
+        <div class="form-group">
+          <label>Subject Line *</label>
+          <input type="text" id="subject" placeholder="Use {{variables}} from the panel →" value="Action Required: {{doc_type}} needed for your {{partner_name}} account" />
+        </div>
+
+        <div class="form-group">
+          <label>Email Body * <span style="color: #999; font-weight: 400;">(Plain text with variables)</span></label>
+          <textarea id="emailBody" placeholder="Use {{variables}} from the panel on the right">Hi {{first_name}},
+
+We need a bit more information to complete your application with {{partner_name}}.
+
+Please upload your {{doc_type}} by visiting:
+{{upload_link}}
+
+If you have any questions, reply to this email or contact {{partner_support_email}}.
+
+Thank you,
+{{partner_name}} Team</textarea>
+        </div>
+
+        <div id="validationErrors"></div>
+      </div>
+
+      <div class="editor-section">
+        <h3>Trigger Configuration</h3>
+        
+        <div class="form-group">
+          <label>Trigger Event</label>
+          <select id="triggerEvent">
+            <option value="">Select when this email should send...</option>
+            <option value="application_status_need_info">Application Status → NEED INFORMATION</option>
+            <option value="application_status_approved">Application Status → APPROVED</option>
+            <option value="document_uploaded">Document Uploaded</option>
+            <option value="payment_received">Payment Received</option>
+            <option value="identity_verification_required">Identity Verification Required</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="checkbox" id="triggerEnabled" checked />
+            Enable trigger immediately upon save
+          </label>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Variable Panel -->
+    <div class="variable-panel">
+      <div class="panel-header">
+        <h3>📋 Available Variables</h3>
+        <button class="panel-toggle">Collapse</button>
+      </div>
+      <div class="panel-body">
+        
+        <div class="variable-category">
+          <div class="category-header">
+            🧑 Merchant / Account
+            <span>▼</span>
+          </div>
+          <div class="category-content">
+            <div class="variable-item" onclick="copyVariable('{{first_name}}')">
+              <span class="variable-name">{{first_name}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{last_name}}')">
+              <span class="variable-name">{{last_name}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{email}}')">
+              <span class="variable-name">{{email}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{business_name}}')">
+              <span class="variable-name">{{business_name}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{account_id}}')">
+              <span class="variable-name">{{account_id}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="variable-category">
+          <div class="category-header">
+            🏢 Partner
+            <span>▼</span>
+          </div>
+          <div class="category-content">
+            <div class="variable-item" onclick="copyVariable('{{partner_name}}')">
+              <span class="variable-name">{{partner_name}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{partner_support_email}}')">
+              <span class="variable-name">{{partner_support_email}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{partner_phone}}')">
+              <span class="variable-name">{{partner_phone}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="variable-category">
+          <div class="category-header">
+            📄 Documents
+            <span>▼</span>
+          </div>
+          <div class="category-content">
+            <div class="variable-item" onclick="copyVariable('{{doc_type}}')">
+              <span class="variable-name">{{doc_type}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{doc_list}}')">
+              <span class="variable-name">{{doc_list}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{due_date}}')">
+              <span class="variable-name">{{due_date}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="variable-category">
+          <div class="category-header">
+            🔗 Links & Actions
+            <span>▼</span>
+          </div>
+          <div class="category-content">
+            <div class="variable-item" onclick="copyVariable('{{upload_link}}')">
+              <span class="variable-name">{{upload_link}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{dashboard_link}}')">
+              <span class="variable-name">{{dashboard_link}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{verification_link}}')">
+              <span class="variable-name">{{verification_link}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+            <div class="variable-item" onclick="copyVariable('{{support_link}}')">
+              <span class="variable-name">{{support_link}}</span>
+              <span class="copy-icon">📋</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Preview Modal -->
+<div class="modal" id="previewModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>📧 Email Preview</h3>
+      <button class="modal-close" onclick="closePreview()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="preview-email">
+        <div class="email-header">
+          <div class="email-header-row">
+            <span class="email-label">From:</span>
+            <span class="email-value">Acme Corp &lt;noreply@acmecorp.com&gt;</span>
+          </div>
+          <div class="email-header-row">
+            <span class="email-label">To:</span>
+            <span class="email-value">derek@example.com</span>
+          </div>
+          <div class="email-header-row">
+            <span class="email-label">Subject:</span>
+            <span class="email-value">Action Required: Drivers License needed for your Acme Corp account</span>
+          </div>
+          <div class="email-header-row">
+            <span class="email-label">Sent:</span>
+            <span class="email-value">Preview Mode</span>
+          </div>
+        </div>
+        <div class="email-body">
+          <div class="partner-logo">[Partner Logo]</div>
+          <p style="margin-bottom: 16px;">Hi Derek,</p>
+          <p style="margin-bottom: 16px;">We need a bit more information to complete your application with Acme Corp.</p>
+          <p style="margin-bottom: 16px;">Please upload your Drivers License by visiting:<br>
+          <a href="#" style="color: #0d7377;">https://portal.acmecorp.com/upload/abc123</a></p>
+          <p style="margin-bottom: 16px;">If you have any questions, reply to this email or contact support@acmecorp.com.</p>
+          <p>Thank you,<br>Acme Corp Team</p>
+        </div>
+      </div>
+    </div>
+    <div class="action-bar">
+      <button class="btn btn-secondary" onclick="closePreview()">Close</button>
+      <button class="btn btn-primary" onclick="sendTestEmail()">📧 Send Test Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast">
+  <span>✓</span>
+  <span id="toastMessage"></span>
+</div>
+
+<script>
+function copyVariable(variable) {
+  navigator.clipboard.writeText(variable);
+  showToast(`Copied ${variable} to clipboard`);
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  const toastMessage = document.getElementById('toastMessage');
+  toastMessage.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2000);
+}
+
+function showPreview() {
+  // Validate variables
+  const body = document.getElementById('emailBody').value;
+  const subject = document.getElementById('subject').value;
+  
+  const invalidVars = [];
+  const varPattern = /\{\{([^}]+)\}\}/g;
+  let match;
+  
+  const validVars = ['first_name', 'last_name', 'email', 'business_name', 'account_id', 'partner_name', 'partner_support_email', 'partner_phone', 'doc_type', 'doc_list', 'due_date', 'upload_link', 'dashboard_link', 'verification_link', 'support_link'];
+  
+  while ((match = varPattern.exec(body + subject)) !== null) {
+    const varName = match[1].trim();
+    if (!validVars.includes(varName)) {
+      invalidVars.push(varName);
+    }
+  }
+  
+  const errorDiv = document.getElementById('validationErrors');
+  if (invalidVars.length > 0) {
+    errorDiv.innerHTML = `<div class="validation-error">⚠️ Unknown variables detected: ${[...new Set(invalidVars)].map(v => `{{${v}}}`).join(', ')}</div>`;
+    return;
+  } else {
+    errorDiv.innerHTML = '';
+  }
+  
+  document.getElementById('previewModal').classList.add('show');
+}
+
+function closePreview() {
+  document.getElementById('previewModal').classList.remove('show');
+}
+
+function sendTestEmail() {
+  showToast('Test email sent to derek+test@getfwd.com');
+  setTimeout(() => {
+    closePreview();
+  }, 2000);
+}
+
+function saveTemplate() {
+  const notifType = document.getElementById('notifType').value;
+  const templateName = document.getElementById('templateName').value;
+  const subject = document.getElementById('subject').value;
+  const body = document.getElementById('emailBody').value;
+  
+  if (!notifType || !templateName || !subject || !body) {
+    showToast('⚠️ Please fill in all required fields');
+    return;
+  }
+  
+  showToast('✓ Template saved successfully');
+  setTimeout(() => {
+    window.location.href = '#templates-list';
+  }, 1500);
+}
+</script>
+
+</body>
+</html>

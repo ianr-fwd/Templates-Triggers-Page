@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommsHub - Notifications (Enhanced)</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.header {
+  background: #0d7377;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.nav {
+  background: #0d7377;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding: 0 24px;
+  display: flex;
+  gap: 24px;
+}
+
+.nav-item {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-item:hover { color: white; }
+.nav-item.active { color: white; border-bottom-color: white; }
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+/* Summary Metrics Bar */
+.metrics-bar {
+  background: white;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.metrics-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.metrics-row {
+  display: flex;
+  gap: 0;
+  background: #f9f9f9;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+}
+
+.metric {
+  flex: 1;
+  padding: 16px 20px;
+  border-right: 1px solid #e5e5e5;
+  text-align: center;
+}
+
+.metric:last-child { border-right: none; }
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 700;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.metric.total .metric-value { color: #333; }
+.metric.delivered .metric-value { color: #00875a; }
+.metric.pending .metric-value { color: #ff8b00; }
+.metric.failed .metric-value { color: #de350b; }
+
+.metric-label {
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-icon {
+  font-size: 20px;
+  margin-right: 6px;
+}
+
+/* Filters */
+.filters-bar {
+  background: white;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+}
+
+.filter-input {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  min-width: 200px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: #0d7377;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 13px;
+  background: white;
+  cursor: pointer;
+}
+
+.quick-filters {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.quick-filter {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.quick-filter:hover {
+  background: #f9f9f9;
+  border-color: #0d7377;
+}
+
+.quick-filter.active {
+  background: #0d7377;
+  color: white;
+  border-color: #0d7377;
+}
+
+.quick-filter .count {
+  background: rgba(0,0,0,0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 6px;
+}
+
+.quick-filter.active .count {
+  background: rgba(255,255,255,0.2);
+}
+
+/* Table */
+.table-container {
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f9f9f9;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+}
+
+tr:last-child td { border-bottom: none; }
+
+tbody tr {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+tbody tr:hover { background: #f9f9f9; }
+
+tbody tr.pending { background: #fffbf0; }
+tbody tr.failed { background: #fff5f5; }
+
+tbody tr.pending:hover { background: #fff7e6; }
+tbody tr.failed:hover { background: #ffebeb; }
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.delivered {
+  background: #e3fcef;
+  color: #006644;
+}
+
+.status-badge.pending {
+  background: #fffae6;
+  color: #974f0c;
+}
+
+.status-badge.failed {
+  background: #ffebe6;
+  color: #bf2600;
+}
+
+.type-badge {
+  background: #f4f5f7;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #555;
+}
+
+/* Details Panel */
+.detail-panel {
+  position: fixed;
+  right: -500px;
+  top: 0;
+  width: 500px;
+  height: 100vh;
+  background: white;
+  box-shadow: -4px 0 16px rgba(0,0,0,0.2);
+  transition: right 0.3s ease;
+  z-index: 100;
+  overflow-y: auto;
+}
+
+.detail-panel.open { right: 0; }
+
+.detail-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
+}
+
+.detail-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close-btn:hover { color: #333; }
+
+.detail-section {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.detail-section h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.detail-row {
+  display: flex;
+  margin-bottom: 12px;
+}
+
+.detail-row:last-child { margin-bottom: 0; }
+
+.detail-label {
+  width: 140px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #666;
+}
+
+.detail-value {
+  flex: 1;
+  font-size: 13px;
+  color: #333;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.btn-secondary {
+  background: white;
+  color: #0d7377;
+  border: 1px solid #0d7377;
+}
+
+.btn-secondary:hover { background: #f0f9f9; }
+
+.email-preview-box {
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  padding: 16px;
+  margin-top: 12px;
+}
+
+.email-preview-box h5 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.email-preview-content {
+  font-size: 12px;
+  color: #555;
+  line-height: 1.6;
+  font-family: 'Courier New', monospace;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📬 CommsHub Notification Management</h1>
+</div>
+
+<nav class="nav">
+  <a href="#" class="nav-item">Home</a>
+  <a href="#" class="nav-item">Templates</a>
+  <a href="#" class="nav-item active">Notifications</a>
+  <a href="#" class="nav-item">Partner Settings</a>
+  <a href="#" class="nav-item">Business View</a>
+</nav>
+
+<div class="container">
+  
+  <!-- Summary Metrics -->
+  <div class="metrics-bar">
+    <div class="metrics-header">📊 Yesterday's Activity</div>
+    <div class="metrics-row">
+      <div class="metric total">
+        <span class="metric-value">45</span>
+        <span class="metric-label">Sent</span>
+      </div>
+      <div class="metric delivered">
+        <span class="metric-value"><span class="metric-icon">✓</span>43</span>
+        <span class="metric-label">Delivered</span>
+      </div>
+      <div class="metric pending">
+        <span class="metric-value"><span class="metric-icon">⏳</span>2</span>
+        <span class="metric-label">Pending</span>
+      </div>
+      <div class="metric failed">
+        <span class="metric-value"><span class="metric-icon">⚠</span>0</span>
+        <span class="metric-label">Failed</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="filter-group">
+      <span class="filter-label">🔍</span>
+      <input type="text" class="filter-input" placeholder="Search by merchant name or email..." />
+    </div>
+    
+    <div class="filter-group">
+      <span class="filter-label">Type:</span>
+      <select class="filter-select">
+        <option value="">All Types</option>
+        <option value="document_request">Document Request</option>
+        <option value="payment_receipt">Payment Receipt</option>
+        <option value="checkout_link">Checkout Link</option>
+        <option value="step_up">Identity Verification</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Status:</span>
+      <select class="filter-select">
+        <option value="">All Statuses</option>
+        <option value="delivered">Delivered</option>
+        <option value="pending">Pending</option>
+        <option value="failed">Failed</option>
+      </select>
+    </div>
+
+    <div class="quick-filters">
+      <button class="quick-filter active">
+        Today <span class="count">47</span>
+      </button>
+      <button class="quick-filter">
+        Yesterday <span class="count">45</span>
+      </button>
+      <button class="quick-filter">
+        Last 7 Days <span class="count">312</span>
+      </button>
+      <button class="quick-filter">
+        Last 30 Days <span class="count">1,204</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>Notification Type</th>
+          <th>Recipient</th>
+          <th>Subject</th>
+          <th>Sent</th>
+          <th>Template</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr onclick="showDetail('delivered')">
+          <td>
+            <span class="status-badge delivered">✓ Delivered</span>
+          </td>
+          <td><span class="type-badge">document_request</span></td>
+          <td>Derek Chen<br><span style="color: #999; font-size: 12px;">derek@example.com</span></td>
+          <td>Action Required: Driver's License needed</td>
+          <td>Today, 2:14 PM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_2y3JPJ...</td>
+        </tr>
+        
+        <tr class="pending" onclick="showDetail('pending')">
+          <td>
+            <span class="status-badge pending">⏳ Pending</span>
+          </td>
+          <td><span class="type-badge">payment_receipt</span></td>
+          <td>Sarah Johnson<br><span style="color: #999; font-size: 12px;">sarah@business.co</span></td>
+          <td>Payment Confirmation - Invoice #4521</td>
+          <td>Today, 1:47 PM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_3gCxF...</td>
+        </tr>
+        
+        <tr onclick="showDetail('delivered')">
+          <td>
+            <span class="status-badge delivered">✓ Delivered</span>
+          </td>
+          <td><span class="type-badge">checkout_link</span></td>
+          <td>Michael Torres<br><span style="color: #999; font-size: 12px;">michael@shop.com</span></td>
+          <td>Your payment link is ready</td>
+          <td>Today, 12:33 PM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_3OZAs...</td>
+        </tr>
+
+        <tr onclick="showDetail('delivered')">
+          <td>
+            <span class="status-badge delivered">✓ Delivered</span>
+          </td>
+          <td><span class="type-badge">document_request</span></td>
+          <td>Lisa Patel<br><span style="color: #999; font-size: 12px;">lisa.patel@corp.io</span></td>
+          <td>Additional documentation required</td>
+          <td>Today, 11:15 AM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_2y3JPJ...</td>
+        </tr>
+
+        <tr class="pending" onclick="showDetail('pending')">
+          <td>
+            <span class="status-badge pending">⏳ Pending</span>
+          </td>
+          <td><span class="type-badge">step_up</span></td>
+          <td>James Kim<br><span style="color: #999; font-size: 12px;">j.kim@enterprise.com</span></td>
+          <td>Action Needed: Verify Your Identity</td>
+          <td>Today, 10:52 AM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_36w6k...</td>
+        </tr>
+
+        <tr onclick="showDetail('delivered')">
+          <td>
+            <span class="status-badge delivered">✓ Delivered</span>
+          </td>
+          <td><span class="type-badge">payment_receipt</span></td>
+          <td>Amanda Wong<br><span style="color: #999; font-size: 12px;">amanda@retail.biz</span></td>
+          <td>Payment received - Thank you!</td>
+          <td>Today, 9:28 AM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_3gCxF...</td>
+        </tr>
+
+        <tr onclick="showDetail('delivered')">
+          <td>
+            <span class="status-badge delivered">✓ Delivered</span>
+          </td>
+          <td><span class="type-badge">checkout_link</span></td>
+          <td>Robert Martinez<br><span style="color: #999; font-size: 12px;">r.martinez@small.biz</span></td>
+          <td>Complete your payment here</td>
+          <td>Yesterday, 4:17 PM</td>
+          <td style="font-family: 'Courier New', monospace; font-size: 11px; color: #999;">notpl_3OZAs...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Details Panel -->
+<div class="detail-panel" id="detailPanel">
+  <div class="detail-header">
+    <h3>Notification Details</h3>
+    <button class="close-btn" onclick="closeDetail()">×</button>
+  </div>
+
+  <div class="detail-section">
+    <h4>Recipient Information</h4>
+    <div class="detail-row">
+      <span class="detail-label">Merchant:</span>
+      <span class="detail-value">Derek Chen</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Email:</span>
+      <span class="detail-value">derek@example.com</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Sent:</span>
+      <span class="detail-value">Feb 17, 2026 2:14 PM EST</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Delivery Status:</span>
+      <span class="detail-value"><span class="status-badge delivered">✓ Delivered</span></span>
+    </div>
+  </div>
+
+  <div class="detail-section">
+    <h4>Trigger Information</h4>
+    <div class="detail-row">
+      <span class="detail-label">Event:</span>
+      <span class="detail-value">Application Status Change</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Status:</span>
+      <span class="detail-value">SUBMITTED → NEED_INFORMATION</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Sent By:</span>
+      <span class="detail-value">Automated (Rule Trigger)</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Application ID:</span>
+      <span class="detail-value" style="font-family: 'Courier New', monospace; font-size: 12px;">app_2eqnpi1OlmRox0TMpTzIL...</span>
+    </div>
+  </div>
+
+  <div class="detail-section">
+    <h4>Email Content</h4>
+    <div class="detail-row">
+      <span class="detail-label">Template:</span>
+      <span class="detail-value">Document Request - Drivers License</span>
+    </div>
+    <div class="detail-row">
+      <span class="detail-label">Subject:</span>
+      <span class="detail-value">Action Required: Driver's License needed</span>
+    </div>
+    <div class="email-preview-box">
+      <h5>Email Preview:</h5>
+      <div class="email-preview-content">
+Hi Derek,
+
+We need a bit more information to complete 
+your application with Acme Corp.
+
+Please upload your Driver's License by 
+visiting: [upload_link]
+
+If you have any questions, contact 
+support@acmecorp.com.
+
+Thank you,
+Acme Corp Team
+      </div>
+    </div>
+  </div>
+
+  <div class="detail-section">
+    <div class="action-buttons">
+      <button class="btn btn-secondary" onclick="viewInOlympus()">👁 View in Olympus</button>
+      <button class="btn btn-secondary" onclick="resendEmail()">↻ Resend</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function showDetail(status) {
+  document.getElementById('detailPanel').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('detailPanel').classList.remove('open');
+}
+
+function viewInOlympus() {
+  alert('Opening in Olympus...');
+}
+
+function resendEmail() {
+  if (confirm('Are you sure you want to resend this notification?')) {
+    alert('Notification resent successfully');
+    closeDetail();
+  }
+}
+
+// Quick filter activation
+document.querySelectorAll('.quick-filter').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.quick-filter').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>End-to-End RFI Workflow - Forward Platform</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+/* Progress Bar */
+.workflow-progress {
+  background: white;
+  border-bottom: 2px solid #e5e5e5;
+  padding: 16px 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.progress-line {
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: #e5e5e5;
+  z-index: 1;
+}
+
+.progress-line-fill {
+  height: 100%;
+  background: #0d7377;
+  width: 0%;
+  transition: width 0.5s ease;
+}
+
+.step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #999;
+  transition: all 0.3s;
+}
+
+.step.active .step-circle {
+  border-color: #0d7377;
+  background: #0d7377;
+  color: white;
+}
+
+.step.completed .step-circle {
+  border-color: #28a745;
+  background: #28a745;
+  color: white;
+}
+
+.step-label {
+  font-size: 11px;
+  color: #999;
+  text-align: center;
+  font-weight: 500;
+  max-width: 120px;
+}
+
+.step.active .step-label {
+  color: #0d7377;
+  font-weight: 600;
+}
+
+.step.completed .step-label {
+  color: #28a745;
+}
+
+/* Screen Container */
+.screen {
+  display: none;
+  min-height: calc(100vh - 100px);
+}
+
+.screen.active {
+  display: block;
+}
+
+.screen-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+/* Common Elements */
+.header-bar {
+  background: white;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 32px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.header-subtitle {
+  font-size: 14px;
+  color: #666;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #0d7377;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0a5f62;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13,115,119,0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #0d7377;
+  border: 2px solid #0d7377;
+}
+
+.btn-secondary:hover {
+  background: #f0f9f9;
+}
+
+.btn-success {
+  background: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
+}
+
+/* Form Elements */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #555;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #0d7377;
+  box-shadow: 0 0 0 3px rgba(13,115,119,0.1);
+}
+
+.form-group textarea {
+  min-height: 120px;
+  font-family: 'Courier New', monospace;
+}
+
+.hint {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* CommsHub - Template Editor */
+.variable-panel {
+  background: #f9f9f9;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.variable-panel h4 {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.variable-item {
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin: 4px;
+  cursor: pointer;
+  color: #0d7377;
+}
+
+.variable-item:hover {
+  background: #0d7377;
+  color: white;
+  border-color: #0d7377;
+}
+
+/* Olympus - Application Review */
+.app-header {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  padding: 20px 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.app-id {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-bottom: 4px;
+}
+
+.app-merchant {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.app-status {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.status-review {
+  background: #ffc107;
+  color: #1a1a1a;
+}
+
+.status-need-info {
+  background: #ff6b6b;
+  color: white;
+}
+
+.status-approved {
+  background: #28a745;
+  color: white;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 11px;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 14px;
+  color: #333;
+}
+
+.action-bar {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 2px dashed #ddd;
+  margin-bottom: 24px;
+}
+
+/* Document Selection Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #999;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-body {
+  padding: 24px;
+  max-height: calc(90vh - 160px);
+  overflow-y: auto;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e5e5;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.doc-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.doc-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 2px solid #e5e5e5;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.doc-checkbox-item:hover {
+  border-color: #0d7377;
+  background: #f9fafa;
+}
+
+.doc-checkbox-item.selected {
+  border-color: #0d7377;
+  background: #e6f4f5;
+}
+
+.doc-checkbox-item input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.doc-checkbox-item label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* Email View */
+.email-container {
+  max-width: 600px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.email-header {
+  background: #f9f9f9;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  font-size: 13px;
+  color: #666;
+}
+
+.email-body {
+  padding: 32px 24px;
+}
+
+.partner-logo {
+  width: 140px;
+  height: 36px;
+  background: linear-gradient(135deg, #0d7377 0%, #14919b 100%);
+  border-radius: 6px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Merchant Portal */
+.portal-header {
+  background: white;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.portal-logo {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0d7377;
+}
+
+.rfi-banner {
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+  border: 2px solid #f4a900;
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: start;
+  gap: 16px;
+}
+
+.rfi-banner.success {
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-color: #28a745;
+}
+
+.doc-upload-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 24px;
+}
+
+.doc-item {
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+
+.doc-item:hover {
+  border-color: #0d7377;
+  background: #f9fafa;
+}
+
+.doc-item.uploaded {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.doc-icon {
+  width: 48px;
+  height: 48px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.doc-item.uploaded .doc-icon {
+  background: #d4edda;
+}
+
+/* Document Review */
+.doc-review-grid {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.doc-review-item {
+  border: 2px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.doc-review-item.approved {
+  border-color: #28a745;
+  background: #f8fff9;
+}
+
+.doc-thumbnail {
+  width: 60px;
+  height: 80px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.doc-review-info {
+  flex: 1;
+}
+
+.doc-review-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.doc-review-meta {
+  font-size: 12px;
+  color: #999;
+}
+
+.doc-review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 6px 16px;
+  font-size: 13px;
+}
+
+/* Action Buttons */
+.continue-btn {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+}
+
+input[type="file"] {
+  display: none;
+}
+</style>
+</head>
+<body>
+
+<!-- Workflow Progress Bar -->
+<div class="workflow-progress">
+  <div class="progress-steps">
+    <div class="progress-line">
+      <div class="progress-line-fill" id="progressFill"></div>
+    </div>
+    
+    <div class="step" id="step1">
+      <div class="step-circle">1</div>
+      <div class="step-label">Create Template</div>
+    </div>
+    
+    <div class="step" id="step2">
+      <div class="step-circle">2</div>
+      <div class="step-label">Setup Triggers</div>
+    </div>
+    
+    <div class="step" id="step3">
+      <div class="step-circle">3</div>
+      <div class="step-label">Review App</div>
+    </div>
+    
+    <div class="step" id="step4">
+      <div class="step-circle">4</div>
+      <div class="step-label">Request Docs</div>
+    </div>
+    
+    <div class="step" id="step5">
+      <div class="step-circle">5</div>
+      <div class="step-label">Initial Email</div>
+    </div>
+    
+    <div class="step" id="step6">
+      <div class="step-circle">6</div>
+      <div class="step-label">Partial Upload</div>
+    </div>
+    
+    <div class="step" id="step7">
+      <div class="step-circle">7</div>
+      <div class="step-label">Reminder Email</div>
+    </div>
+    
+    <div class="step" id="step8">
+      <div class="step-circle">8</div>
+      <div class="step-label">Complete Upload</div>
+    </div>
+    
+    <div class="step" id="step9">
+      <div class="step-circle">9</div>
+      <div class="step-label">Review Docs</div>
+    </div>
+    
+    <div class="step" id="step10">
+      <div class="step-circle">10</div>
+      <div class="step-label">Approve</div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 1: CommsHub - Create Template -->
+<div class="screen active" id="screen1">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">📬 CommsHub - Create RFI Template</div>
+      <div class="header-subtitle">Define the email template that will be sent when documents are requested</div>
+    </div>
+    
+    <div class="card">
+      <div class="form-group">
+        <label>Template Name</label>
+        <input type="text" value="Document Request - Identity Verification" readonly />
+      </div>
+      
+      <div class="form-group">
+        <label>Notification Type</label>
+        <select>
+          <option>document_request</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label>Subject Line</label>
+        <input type="text" value="We need more information about your application" readonly />
+      </div>
+      
+      <div class="form-group">
+        <label>Email Body</label>
+        <div class="variable-panel">
+          <h4>Available Variables (click to reference)</h4>
+          <span class="variable-item">{{first_name}}</span>
+          <span class="variable-item">{{partner_name}}</span>
+          <span class="variable-item">{{upload_link}}</span>
+          <span class="variable-item">{{partner_support_email}}</span>
+        </div>
+        <textarea readonly>Hi {{first_name}},
+
+We're reviewing your application and need some additional documents to continue the approval process.
+
+To keep things moving quickly, please upload the requested documents at your earliest convenience.
+
+{{upload_link}}
+
+If you have any questions, reach out to {{partner_support_email}}.
+
+Thank you,
+{{partner_name}} Team</textarea>
+      </div>
+    </div>
+    
+    <div class="continue-btn">
+      <button class="btn btn-primary" onclick="goToStep(2)">Save Template & Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2: CommsHub - Setup Triggers -->
+<div class="screen" id="screen2">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">🎯 CommsHub - Setup Automated Triggers</div>
+      <div class="header-subtitle">Configure when emails should be sent automatically</div>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 16px;">Trigger 1: Initial RFI Request</h3>
+      <div class="form-group">
+        <label>Trigger Event</label>
+        <select>
+          <option>Application Status → NEED_INFORMATION</option>
+        </select>
+        <div class="hint">Sends immediately when application status changes to NEED_INFORMATION</div>
+      </div>
+      
+      <div class="form-group">
+        <label>Template to Send</label>
+        <select>
+          <option>Document Request - Identity Verification</option>
+        </select>
+      </div>
+      
+      <div style="background: #e6f4f5; padding: 12px; border-radius: 6px; border-left: 3px solid #0d7377; margin-top: 12px;">
+        <strong style="font-size: 13px; color: #0d7377;">✓ Initial email configured</strong>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 16px;">Trigger 2: 7-Day Reminder (Follow-up)</h3>
+      <div class="form-group">
+        <label>Trigger Event</label>
+        <select>
+          <option>Information Request → No activity in 7 days</option>
+        </select>
+        <div class="hint">Sends reminder if merchant hasn't completed document upload after 7 days</div>
+      </div>
+      
+      <div class="form-group">
+        <label>Template to Send</label>
+        <input type="text" value="Document Request - Reminder (7 days)" readonly />
+        <div class="hint" style="margin-top: 8px; background: #f9f9f9; padding: 10px; border-radius: 4px;">
+          <strong>Template preview:</strong><br>
+          <em style="font-size: 12px; color: #666;">
+            "Hi {{first_name}}, We still need your documents to continue processing your application. Please upload them at your earliest convenience: {{upload_link}}"
+          </em>
+        </div>
+      </div>
+      
+      <div style="background: #fff3cd; padding: 12px; border-radius: 6px; border-left: 3px solid #f4a900; margin-top: 12px;">
+        <strong style="font-size: 13px; color: #856404;">⏰ Reminder email configured</strong>
+        <p style="font-size: 12px; color: #856404; margin-top: 4px;">For demo purposes, this will trigger after partial upload in the next steps</p>
+      </div>
+    </div>
+    
+    <div class="continue-btn">
+      <button class="btn btn-primary" onclick="goToStep(3)">Save Triggers & Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 3: Olympus - Application Review -->
+<div class="screen" id="screen3">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">🏛️ Olympus - Application Review</div>
+      <div class="header-subtitle">Review the merchant's application and request additional information</div>
+    </div>
+    
+    <div class="app-header">
+      <div class="app-id">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</div>
+      <div class="app-merchant">Dr. Erika Okuneva - Parker LLC</div>
+      <span class="app-status status-review">UNDER REVIEW</span>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 16px;">Merchant Information</h3>
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Legal Name</div>
+          <div class="info-value">Dr. Erika Okuneva</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Business Name</div>
+          <div class="info-value">Parker LLC</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Email</div>
+          <div class="info-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3753451952455e5c5619585c425952415677524f565a475b521954585a">[email&#160;protected]</a></div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Partner</div>
+          <div class="info-value">Auto Partner</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Business Category</div>
+          <div class="info-value">Petroleum</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Submitted</div>
+          <div class="info-value">07/14/2025 01:14 AM</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="action-bar">
+      <button class="btn btn-secondary" onclick="showDocumentModal()">📋 Request Information (RFI)</button>
+      <button class="btn btn-success" disabled>✓ Approve Application</button>
+      <button class="btn btn-secondary" disabled>✗ Decline Application</button>
+    </div>
+    
+    <div style="background: #fff3cd; border: 2px solid #f4a900; border-radius: 6px; padding: 16px;">
+      <strong style="font-size: 14px;">⚠️ Next Step:</strong>
+      <p style="font-size: 13px; margin-top: 6px; color: #666;">
+        This application needs additional identity verification documents. Click "Request Information (RFI)" to select which documents you need from the merchant.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Document Selection Modal -->
+<div class="modal" id="docModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Request Documents</h3>
+      <button class="modal-close" onclick="closeDocModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom: 16px; color: #666;">Select which documents you need from the merchant (minimum 3 required, maximum 5 allowed):</p>
+      
+      <div class="doc-checkbox-list">
+        <div class="doc-checkbox-item" onclick="toggleDoc(this)">
+          <input type="checkbox" id="doc1" />
+          <label for="doc1">Driver's License</label>
+        </div>
+        <div class="doc-checkbox-item" onclick="toggleDoc(this)">
+          <input type="checkbox" id="doc2" />
+          <label for="doc2">Passport</label>
+        </div>
+        <div class="doc-checkbox-item" onclick="toggleDoc(this)">
+          <input type="checkbox" id="doc3" />
+          <label for="doc3">Birth Certificate</label>
+        </div>
+        <div class="doc-checkbox-item" onclick="toggleDoc(this)">
+          <input type="checkbox" id="doc4" />
+          <label for="doc4">Utility Bill</label>
+        </div>
+        <div class="doc-checkbox-item" onclick="toggleDoc(this)">
+          <input type="checkbox" id="doc5" />
+          <label for="doc5">Bank Statement</label>
+        </div>
+      </div>
+      
+      <div style="margin-top: 16px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+        <strong style="font-size: 13px;">Configuration:</strong>
+        <p style="font-size: 12px; color: #666; margin-top: 4px;">
+          Merchant will be asked to provide at least <strong>3 documents</strong> from your selection above.
+        </p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDocModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="sendRFI()">Send RFI Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 4: Olympus - RFI Sent Confirmation -->
+<div class="screen" id="screen4">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">✅ Information Request Sent</div>
+      <div class="header-subtitle">The merchant has been notified and the application status has been updated</div>
+    </div>
+    
+    <div class="app-header">
+      <div class="app-id">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</div>
+      <div class="app-merchant">Dr. Erika Okuneva - Parker LLC</div>
+      <span class="app-status status-need-info">NEED INFORMATION</span>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 16px;">✉️ Automated Email Sent</h3>
+      <div style="background: #e6f4f5; padding: 16px; border-radius: 6px; border-left: 3px solid #0d7377;">
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Template:</strong> Document Request - Identity Verification</p>
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Sent to:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2145530f4453484a400f4e4a544f445740614459404c514d440f424e4c">[email&#160;protected]</a></p>
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Partner Branding:</strong> Auto Partner</p>
+        <p style="font-size: 14px;"><strong>Documents Requested:</strong> 5 options (min 3 required)</p>
+      </div>
+      
+      <p style="margin-top: 16px; color: #666; font-size: 14px;">
+        The merchant will receive a partner-branded email with a link to upload the requested documents. Once they submit, the application will return to your review queue.
+      </p>
+    </div>
+    
+    <div class="continue-btn">
+      <button class="btn btn-primary" onclick="goToStep(5)">View Merchant Email →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 5: Email View -->
+<div class="screen" id="screen5">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">📧 Merchant's Email Inbox</div>
+      <div class="header-subtitle">This is what Dr. Erika receives in their inbox</div>
+    </div>
+    
+    <div class="email-container">
+      <div class="email-header">
+        <div style="margin-bottom: 8px;"><strong>From:</strong> Auto Partner &lt;<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="a5cbcad7c0d5c9dce5c4d0d1cad5c4d7d1cbc0d78bc6cac8">[email&#160;protected]</a>&gt;</div>
+        <div style="margin-bottom: 8px;"><strong>To:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d3b7a1fdb6a1bab8b2fdbcb8a6bdb6a5b293b6abb2bea3bfb6fdb0bcbe">[email&#160;protected]</a></div>
+        <div style="font-size: 16px; font-weight: 600; color: #1a1a1a;">We need more information about your application</div>
+      </div>
+      
+      <div class="email-body">
+        <div class="partner-logo">AUTO PARTNER</div>
+        
+        <h1 style="font-size: 22px; font-weight: 600; margin-bottom: 16px;">Additional Information Needed</h1>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">Hi Dr. Erika,</p>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">We're reviewing your application and need some additional documents to continue the approval process.</p>
+        
+        <p style="margin-bottom: 24px; line-height: 1.6;">To keep things moving quickly, please upload the requested documents at your earliest convenience.</p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <button class="btn btn-primary" onclick="goToStep(6)">Provide Information</button>
+        </div>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">If you have any questions, reach out to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3b0b6b3b3acb1b783a2b6b7acb3a2b1b7ada6b1eda0acae">[email&#160;protected]</a>.</p>
+        
+        <p style="line-height: 1.6;">Thank you,<br>Auto Partner Team</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 6: Merchant Portal - Partial Upload -->
+<div class="screen" id="screen6">
+  <div class="screen-content" style="max-width: 1000px;">
+    <div class="portal-header">
+      <div class="portal-logo">🚗 Auto Partner Portal</div>
+      <div style="font-size: 14px; color: #666;">Dr. Erika Okuneva</div>
+    </div>
+    
+    <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Your Application</h1>
+    <p style="font-size: 15px; color: #666; margin-bottom: 24px;">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</p>
+    
+    <div class="rfi-banner">
+      <div style="font-size: 24px;">⚠️</div>
+      <div style="flex: 1;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">More information is required to approve your application</div>
+        <div style="font-size: 14px; color: #666;">
+          We need to verify your identity. Please upload at least <strong>3 of the following documents</strong> below.
+        </div>
+      </div>
+    </div>
+    
+    <div class="doc-upload-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
+        <div style="font-size: 18px; font-weight: 600;">Identity Verification Documents</div>
+        <div id="uploadProgress" style="font-size: 14px; font-weight: 600; color: #0d7377; background: #e6f4f5; padding: 6px 16px; border-radius: 20px;">0 of 3 required</div>
+      </div>
+      
+      <div id="docList">
+        <!-- Documents will be populated dynamically -->
+      </div>
+      
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #f0f0f0;">
+        <div style="background: #fff3cd; border: 2px solid #f4a900; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+          <strong style="font-size: 14px;">⏰ Demo Scenario:</strong>
+          <p style="font-size: 13px; color: #666; margin-top: 6px;">
+            For this demo, only upload 1-2 documents (not all 3). This will simulate the merchant forgetting or delaying completion, which triggers the reminder email.
+          </p>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px; color: #999;">Upload 1-2 documents, then click "Save Progress & Exit"</div>
+          <button class="btn btn-secondary" id="partialSaveBtn" disabled onclick="savePartial()">Save Progress & Exit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 7: Olympus - Incomplete Status & Reminder Sent -->
+<div class="screen" id="screen7">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">📊 Olympus - Application Status: Incomplete</div>
+      <div class="header-subtitle">7 days have passed - automatic reminder email triggered</div>
+    </div>
+    
+    <div class="app-header">
+      <div class="app-id">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</div>
+      <div class="app-merchant">Dr. Erika Okuneva - Parker LLC</div>
+      <span class="app-status status-need-info">NEED INFORMATION - INCOMPLETE</span>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 16px;">📋 Document Request Status</h3>
+      <div style="background: #fff3cd; padding: 16px; border-radius: 6px; border-left: 3px solid #f4a900; margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <p style="font-size: 14px; margin-bottom: 4px;"><strong>Progress:</strong> 2 of 3 required documents uploaded</p>
+            <p style="font-size: 13px; color: #666;">Last activity: 7 days ago</p>
+          </div>
+          <div style="font-size: 24px;">⚠️</div>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+        <div style="padding: 12px; background: #f8fff9; border: 1px solid #28a745; border-radius: 6px;">
+          <div style="font-size: 12px; color: #28a745; font-weight: 600; margin-bottom: 4px;">✓ UPLOADED</div>
+          <div style="font-size: 13px;">Driver's License</div>
+        </div>
+        <div style="padding: 12px; background: #f8fff9; border: 1px solid #28a745; border-radius: 6px;">
+          <div style="font-size: 12px; color: #28a745; font-weight: 600; margin-bottom: 4px;">✓ UPLOADED</div>
+          <div style="font-size: 13px;">Passport</div>
+        </div>
+        <div style="padding: 12px; background: #fff5f5; border: 1px solid #ff6b6b; border-radius: 6px;">
+          <div style="font-size: 12px; color: #ff6b6b; font-weight: 600; margin-bottom: 4px;">⏳ PENDING</div>
+          <div style="font-size: 13px;">Birth Certificate</div>
+        </div>
+        <div style="padding: 12px; background: #fff5f5; border: 1px solid #ff6b6b; border-radius: 6px;">
+          <div style="font-size: 12px; color: #ff6b6b; font-weight: 600; margin-bottom: 4px;">⏳ PENDING</div>
+          <div style="font-size: 13px;">Utility Bill</div>
+        </div>
+      </div>
+      
+      <h3 style="margin-top: 24px; margin-bottom: 12px;">✉️ Automated Reminder Sent</h3>
+      <div style="background: #e6f4f5; padding: 16px; border-radius: 6px; border-left: 3px solid #0d7377;">
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Trigger:</strong> Information Request → No activity in 7 days</p>
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Template:</strong> Document Request - Reminder (7 days)</p>
+        <p style="font-size: 14px; margin-bottom: 8px;"><strong>Sent to:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="3e5a4c105b4c57555f1051554b505b485f7e5b465f534e525b105d5153">[email&#160;protected]</a></p>
+        <p style="font-size: 14px;"><strong>Sent at:</strong> <span id="reminderTime"></span></p>
+      </div>
+    </div>
+    
+    <div class="continue-btn">
+      <button class="btn btn-primary" onclick="goToStep(8)">View Reminder Email →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 8: Reminder Email View -->
+<div class="screen" id="screen8">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">📧 Merchant's Email - Reminder Received</div>
+      <div class="header-subtitle">Automated 7-day reminder sent by CommsHub</div>
+    </div>
+    
+    <div class="email-container">
+      <div class="email-header">
+        <div style="margin-bottom: 8px;"><strong>From:</strong> Auto Partner &lt;<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1d73726f786d71645d7c6869726d7c6f6973786f337e7270">[email&#160;protected]</a>&gt;</div>
+        <div style="margin-bottom: 8px;"><strong>To:</strong> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3a7b1eda6b1aaa8a2edaca8b6ada6b5a283a6bba2aeb3afa6eda0acae">[email&#160;protected]</a></div>
+        <div style="font-size: 16px; font-weight: 600; color: #1a1a1a;">Reminder: Complete your document upload</div>
+      </div>
+      
+      <div class="email-body">
+        <div class="partner-logo">AUTO PARTNER</div>
+        
+        <h1 style="font-size: 22px; font-weight: 600; margin-bottom: 16px;">Don't Forget to Complete Your Application</h1>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">Hi Dr. Erika,</p>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">We noticed you started uploading your documents, but we still need a bit more information to continue processing your application.</p>
+        
+        <div style="background: #f9f9f9; padding: 16px; border-radius: 6px; margin: 24px 0; border-left: 3px solid #f4a900;">
+          <p style="font-size: 14px; margin-bottom: 8px;"><strong>Current Status:</strong></p>
+          <p style="font-size: 14px; margin-bottom: 4px;">✓ 2 documents uploaded</p>
+          <p style="font-size: 14px; color: #f4a900;">⚠️ At least 1 more document needed</p>
+        </div>
+        
+        <p style="margin-bottom: 24px; line-height: 1.6;">Please take a moment to finish uploading your documents so we can move forward with your application.</p>
+        
+        <div style="text-align: center; margin: 32px 0;">
+          <button class="btn btn-primary" onclick="goToStep(9)">Complete Upload</button>
+        </div>
+        
+        <p style="margin-bottom: 16px; line-height: 1.6;">If you have any questions, reach out to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1a696f6a6a75686e5a7b6f6e756a7b686e747f6834797577">[email&#160;protected]</a>.</p>
+        
+        <p style="line-height: 1.6;">Thank you,<br>Auto Partner Team</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 9: Merchant Portal - Complete Upload -->
+<div class="screen" id="screen9">
+  <div class="screen-content" style="max-width: 1000px;">
+    <div class="portal-header">
+      <div class="portal-logo">🚗 Auto Partner Portal</div>
+      <div style="font-size: 14px; color: #666;">Dr. Erika Okuneva</div>
+    </div>
+    
+    <h1 style="font-size: 28px; font-weight: 600; margin-bottom: 8px;">Your Application</h1>
+    <p style="font-size: 15px; color: #666; margin-bottom: 24px;">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</p>
+    
+    <div class="rfi-banner">
+      <div style="font-size: 24px;">⚠️</div>
+      <div style="flex: 1;">
+        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Almost there! Just 1 more document needed</div>
+        <div style="font-size: 14px; color: #666;">
+          You've uploaded 2 documents. Please upload at least 1 more to complete your application.
+        </div>
+      </div>
+    </div>
+    
+    <div class="doc-upload-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid #f0f0f0;">
+        <div style="font-size: 18px; font-weight: 600;">Identity Verification Documents</div>
+        <div id="uploadProgress2" style="font-size: 14px; font-weight: 600; color: #f4a900; background: #fff3cd; padding: 6px 16px; border-radius: 20px;">2 of 3 required</div>
+      </div>
+      
+      <div id="docList2">
+        <!-- Documents will show previous uploads + remaining -->
+      </div>
+      
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #f0f0f0;">
+        <div style="background: #e6f4f5; border: 2px solid #0d7377; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+          <strong style="font-size: 14px; color: #0d7377;">📝 Instructions:</strong>
+          <p style="font-size: 13px; color: #666; margin-top: 6px;">
+            Upload at least ONE more document to enable the Submit button. You already have 2 uploaded, so uploading any of the remaining documents will let you proceed.
+          </p>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px; color: #999;">Upload at least 1 more document to complete your request</div>
+          <button class="btn btn-primary" id="submitDocsBtn2" disabled onclick="submitCompleteDocs()">Submit All Documents</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 10: Olympus - Review Submitted Documents -->
+<div class="screen" id="screen10">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">🏛️ Olympus - Review Submitted Documents</div>
+      <div class="header-subtitle">The merchant has submitted documents - review and approve or request corrections</div>
+    </div>
+    
+    <div class="app-header">
+      <div class="app-id">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</div>
+      <div class="app-merchant">Dr. Erika Okuneva - Parker LLC</div>
+      <span class="app-status status-review">DOCUMENTS SUBMITTED - REVIEW REQUIRED</span>
+    </div>
+    
+    <div class="card">
+      <h3 style="margin-bottom: 4px;">📄 Submitted Documents</h3>
+      <p style="font-size: 13px; color: #666; margin-bottom: 20px;">Submitted: <span id="submitTime"></span></p>
+      
+      <div class="doc-review-grid" id="reviewDocs">
+        <!-- Documents populated by JS -->
+      </div>
+    </div>
+    
+    <div style="background: #d4edda; border: 2px solid #28a745; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+      <strong style="font-size: 14px; color: #28a745;">✓ All Documents Received</strong>
+      <p style="font-size: 13px; color: #666; margin-top: 6px;">
+        Review the submitted documents above, then click "Approve Application" below to complete the workflow.
+      </p>
+    </div>
+    
+    <div class="action-bar">
+      <button class="btn btn-secondary" onclick="alert('Would open request corrections flow')">📋 Request Corrections</button>
+      <button class="btn btn-success" onclick="goToStep(11)">✓ Approve Application</button>
+      <button class="btn btn-secondary">✗ Decline Application</button>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 11: Final - Application Approved -->
+<div class="screen" id="screen11">
+  <div class="screen-content">
+    <div class="header-bar">
+      <div class="header-title">✅ Application Approved</div>
+      <div class="header-subtitle">End-to-end workflow completed successfully</div>
+    </div>
+    
+    <div class="app-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+      <div class="app-id">Application ID: app_2zqzyokiK0rIc98LJWpk206Qgme</div>
+      <div class="app-merchant">Dr. Erika Okuneva - Parker LLC</div>
+      <span class="app-status status-approved">APPROVED</span>
+    </div>
+    
+    <div class="card" style="text-align: center; padding: 48px;">
+      <div style="width: 80px; height: 80px; background: #28a745; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px; color: white;">✓</div>
+      
+      <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 12px;">Workflow Complete!</h2>
+      
+      <p style="font-size: 15px; color: #666; max-width: 600px; margin: 0 auto 32px; line-height: 1.6;">
+        You've successfully completed the entire RFI workflow from template creation to application approval.
+      </p>
+      
+      <div style="background: #f9f9f9; border-radius: 8px; padding: 24px; max-width: 700px; margin: 0 auto; text-align: left;">
+        <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">What Happened:</h4>
+        <ul style="font-size: 13px; color: #666; line-height: 1.8; padding-left: 20px;">
+          <li>Created RFI email template in CommsHub</li>
+          <li>Configured automated triggers (initial + 7-day reminder)</li>
+          <li>Reviewed application in Olympus and requested documents</li>
+          <li>System automatically sent partner-branded email to merchant</li>
+          <li>Merchant partially uploaded documents (2 of 3)</li>
+          <li>After 7 days, automated reminder email was triggered</li>
+          <li>Merchant received reminder and completed document upload</li>
+          <li>Application returned to review queue</li>
+          <li>Reviewed submitted documents and approved application</li>
+        </ul>
+      </div>
+      
+      <button class="btn btn-primary" onclick="window.location.reload()" style="margin-top: 32px;">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+let currentStep = 1;
+let uploadCount = 0;
+const uploadedDocs = [];
+const selectedDocs = [];
+let partialUploadCount = 0;
+
+function goToStep(step) {
+  // Hide all screens
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  
+  // Show target screen
+  document.getElementById('screen' + step).classList.add('active');
+  
+  // Update progress
+  updateProgress(step);
+  
+  // Special handling for certain screens
+  if (step === 6) {
+    initializeUploadScreen();
+  } else if (step === 7) {
+    setReminderTime();
+  } else if (step === 9) {
+    initializeCompleteUploadScreen();
+  } else if (step === 10) {
+    populateReviewScreen();
+  }
+  
+  currentStep = step;
+  
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function updateProgress(step) {
+  // Update step indicators (10 progress steps for 11 screens - last screen is success)
+  for (let i = 1; i <= 10; i++) {
+    const stepEl = document.getElementById('step' + i);
+    stepEl.classList.remove('active', 'completed');
+    
+    if (i < step || step === 11) {
+      stepEl.classList.add('completed');
+      stepEl.querySelector('.step-circle').textContent = '✓';
+    } else if (i === step) {
+      stepEl.classList.add('active');
+      stepEl.querySelector('.step-circle').textContent = i;
+    } else {
+      stepEl.querySelector('.step-circle').textContent = i;
+    }
+  }
+  
+  // Update progress bar (9 gaps between 10 steps, 100% at step 11)
+  let progress;
+  if (step === 11) {
+    progress = 100;
+  } else {
+    progress = ((step - 1) / 9) * 100;
+  }
+  document.getElementById('progressFill').style.width = progress + '%';
+}
+
+function setReminderTime() {
+  const now = new Date();
+  document.getElementById('reminderTime').textContent = now.toLocaleString();
+}
+
+function showDocumentModal() {
+  document.getElementById('docModal').classList.add('show');
+}
+
+function closeDocModal() {
+  document.getElementById('docModal').classList.remove('show');
+}
+
+function toggleDoc(element) {
+  element.classList.toggle('selected');
+  const checkbox = element.querySelector('input[type="checkbox"]');
+  checkbox.checked = !checkbox.checked;
+}
+
+function sendRFI() {
+  // Get selected documents
+  selectedDocs.length = 0;
+  document.querySelectorAll('#docModal input[type="checkbox"]:checked').forEach(cb => {
+    selectedDocs.push(cb.nextElementSibling.textContent);
+  });
+  
+  if (selectedDocs.length === 0) {
+    alert('Please select at least one document type');
+    return;
+  }
+  
+  closeDocModal();
+  goToStep(4);
+}
+
+function initializeUploadScreen() {
+  const docList = document.getElementById('docList');
+  docList.innerHTML = '';
+  
+  const icons = { 
+    "Driver's License": "🪪",
+    "Passport": "📘", 
+    "Birth Certificate": "📄",
+    "Utility Bill": "💡",
+    "Bank Statement": "🏦"
+  };
+  
+  selectedDocs.forEach((doc, index) => {
+    const docEl = document.createElement('div');
+    docEl.className = 'doc-item';
+    docEl.id = 'merchantDoc' + index;
+    docEl.innerHTML = `
+      <div class="doc-icon">${icons[doc] || '📄'}</div>
+      <div style="flex: 1;">
+        <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">${doc}</div>
+        <div class="doc-status">No file uploaded</div>
+        <div class="doc-filename" style="display: none; font-size: 12px; color: #666; font-family: 'Courier New', monospace; margin-top: 4px;"></div>
+      </div>
+      <div>
+        <input type="file" id="merchantFile${index}" accept=".pdf,.jpg,.jpeg,.png" onchange="handleMerchantUpload(${index}, '${doc}')" />
+        <button class="btn btn-secondary" onclick="document.getElementById('merchantFile${index}').click()">📤 Upload</button>
+      </div>
+    `;
+    docList.appendChild(docEl);
+  });
+  
+  uploadCount = 0;
+  partialUploadCount = 0;
+  uploadedDocs.length = 0;
+  updateUploadProgress();
+}
+
+function handleMerchantUpload(index, docName) {
+  const fileInput = document.getElementById('merchantFile' + index);
+  const file = fileInput.files[0];
+  
+  if (!file) return;
+  
+  const docEl = document.getElementById('merchantDoc' + index);
+  docEl.classList.add('uploaded');
+  
+  const status = docEl.querySelector('.doc-status');
+  status.textContent = 'Uploaded';
+  status.style.color = '#28a745';
+  
+  const filename = docEl.querySelector('.doc-filename');
+  filename.textContent = file.name;
+  filename.style.display = 'block';
+  
+  const btn = docEl.querySelector('button');
+  btn.textContent = '✓ Uploaded';
+  btn.className = 'btn btn-success';
+  
+  if (!uploadedDocs.some(d => d.name === docName)) {
+    uploadedDocs.push({ name: docName, file: file.name });
+    uploadCount++;
+    partialUploadCount++;
+  }
+  
+  updateUploadProgress();
+}
+
+function updateUploadProgress() {
+  const progress = document.getElementById('uploadProgress');
+  const partialBtn = document.getElementById('partialSaveBtn');
+  
+  progress.textContent = uploadCount + ' of 3 required';
+  
+  // Enable save button if at least 1 doc uploaded but less than 3
+  if (uploadCount >= 1 && uploadCount < 3) {
+    partialBtn.disabled = false;
+  }
+}
+
+function savePartial() {
+  // Save partial progress and continue to reminder flow
+  goToStep(7);
+}
+
+function initializeCompleteUploadScreen() {
+  const docList = document.getElementById('docList2');
+  docList.innerHTML = '';
+  
+  const icons = { 
+    "Driver's License": "🪪",
+    "Passport": "📘", 
+    "Birth Certificate": "📄",
+    "Utility Bill": "💡",
+    "Bank Statement": "🏦"
+  };
+  
+  selectedDocs.forEach((doc, index) => {
+    const docEl = document.createElement('div');
+    docEl.className = 'doc-item';
+    docEl.id = 'merchantDoc2_' + index;
+    
+    // Check if this was already uploaded
+    const alreadyUploaded = uploadedDocs.some(d => d.name === doc);
+    
+    if (alreadyUploaded) {
+      const uploadedDoc = uploadedDocs.find(d => d.name === doc);
+      docEl.classList.add('uploaded');
+      docEl.innerHTML = `
+        <div class="doc-icon" style="background: #d4edda;">${icons[doc] || '📄'}</div>
+        <div style="flex: 1;">
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">${doc}</div>
+          <div class="doc-status" style="color: #28a745;">Uploaded</div>
+          <div class="doc-filename" style="display: block; font-size: 12px; color: #666; font-family: 'Courier New', monospace; margin-top: 4px;">${uploadedDoc.file}</div>
+        </div>
+        <div>
+          <button class="btn btn-success" disabled>✓ Uploaded</button>
+        </div>
+      `;
+    } else {
+      docEl.innerHTML = `
+        <div class="doc-icon">${icons[doc] || '📄'}</div>
+        <div style="flex: 1;">
+          <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px;">${doc}</div>
+          <div class="doc-status">No file uploaded</div>
+          <div class="doc-filename" style="display: none; font-size: 12px; color: #666; font-family: 'Courier New', monospace; margin-top: 4px;"></div>
+        </div>
+        <div>
+          <input type="file" id="merchantFile2_${index}" accept=".pdf,.jpg,.jpeg,.png" onchange="handleCompleteUpload(${index}, '${doc}')" />
+          <button class="btn btn-secondary" onclick="document.getElementById('merchantFile2_${index}').click()">📤 Upload</button>
+        </div>
+      `;
+    }
+    
+    docList.appendChild(docEl);
+  });
+  
+  updateCompleteUploadProgress();
+}
+
+function handleCompleteUpload(index, docName) {
+  const fileInput = document.getElementById('merchantFile2_' + index);
+  const file = fileInput.files[0];
+  
+  if (!file) return;
+  
+  const docEl = document.getElementById('merchantDoc2_' + index);
+  docEl.classList.add('uploaded');
+  
+  const status = docEl.querySelector('.doc-status');
+  status.textContent = 'Uploaded';
+  status.style.color = '#28a745';
+  
+  const filename = docEl.querySelector('.doc-filename');
+  filename.textContent = file.name;
+  filename.style.display = 'block';
+  
+  const btn = docEl.querySelector('button');
+  btn.textContent = '✓ Uploaded';
+  btn.className = 'btn btn-success';
+  
+  const icon = docEl.querySelector('.doc-icon');
+  icon.style.background = '#d4edda';
+  
+  // Check if this doc was already in uploadedDocs from partial upload
+  if (!uploadedDocs.some(d => d.name === docName)) {
+    uploadedDocs.push({ name: docName, file: file.name });
+    uploadCount++;
+  }
+  
+  updateCompleteUploadProgress();
+}
+
+function updateCompleteUploadProgress() {
+  const progress = document.getElementById('uploadProgress2');
+  const submitBtn = document.getElementById('submitDocsBtn2');
+  
+  if (uploadCount >= 3) {
+    progress.textContent = uploadCount + ' of 3 required ✓';
+    progress.style.background = '#d4edda';
+    progress.style.color = '#28a745';
+    submitBtn.disabled = false;
+  } else {
+    progress.textContent = uploadCount + ' of 3 required';
+  }
+}
+
+function submitCompleteDocs() {
+  goToStep(10);
+}
+
+function populateReviewScreen() {
+  const now = new Date();
+  document.getElementById('submitTime').textContent = now.toLocaleString();
+  
+  const reviewDocs = document.getElementById('reviewDocs');
+  reviewDocs.innerHTML = '';
+  
+  uploadedDocs.forEach(doc => {
+    const docEl = document.createElement('div');
+    docEl.className = 'doc-review-item';
+    docEl.innerHTML = `
+      <div class="doc-thumbnail">📄</div>
+      <div class="doc-review-info">
+        <div class="doc-review-name">${doc.name}</div>
+        <div class="doc-review-meta">Filename: ${doc.file} • Uploaded: ${now.toLocaleTimeString()}</div>
+      </div>
+      <div class="doc-review-actions">
+        <button class="btn btn-sm btn-secondary" onclick="alert('Would open document viewer')">👁 View</button>
+        <button class="btn btn-sm btn-success" onclick="approveDoc(this)">✓ Approve</button>
+      </div>
+    `;
+    reviewDocs.appendChild(docEl);
+  });
+}
+
+function approveDoc(btn) {
+  const item = btn.closest('.doc-review-item');
+  item.classList.add('approved');
+  btn.textContent = '✓ Approved';
+  btn.disabled = true;
+}
+
+// Initialize
+updateProgress(1);
+</script>
+
+</body>
+</html>

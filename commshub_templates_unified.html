@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CommsHub - Templates</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
+}
+
+.header {
+  background: #0d7377;
+  color: white;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.nav {
+  background: #0d7377;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding: 0 24px;
+  display: flex;
+  gap: 24px;
+}
+
+.nav-item {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  padding: 12px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-item:hover { color: white; }
+.nav-item.active { color: white; border-bottom-color: white; }
+
+.container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  background: white;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.page-header h2 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Tab Navigation */
+.tab-nav {
+  background: white;
+  border-radius: 4px 4px 0 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 16px 24px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.tab-btn:hover {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.tab-btn.active {
+  color: #0d7377;
+  border-bottom-color: #0d7377;
+  background: white;
+}
+
+.tab-count {
+  background: #f4f5f7;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tab-btn.active .tab-count {
+  background: #e6f4f5;
+  color: #0d7377;
+}
+
+/* Tab Content */
+.tab-content {
+  display: none;
+  background: white;
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.tab-content.active { display: block; }
+
+.content-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px 12px 10px 36px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 12px center;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0d7377;
+  box-shadow: 0 0 0 3px rgba(13,115,119,0.1);
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #0d7377;
+  color: white;
+}
+
+.btn-primary:hover { background: #0a5f62; }
+
+.btn-secondary {
+  background: white;
+  color: #0d7377;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover { background: #f9f9f9; }
+
+/* Templates Table */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #f9f9f9;
+  border-bottom: 2px solid #e5e5e5;
+}
+
+th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+tbody tr {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+tbody tr:hover { background: #f9f9f9; }
+
+.template-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.template-category {
+  font-size: 12px;
+  color: #999;
+}
+
+.type-badge {
+  background: #f4f5f7;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #555;
+  display: inline-block;
+}
+
+.trigger-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #e6f4f5;
+  color: #0d7377;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.trigger-count.zero {
+  background: #f4f5f7;
+  color: #999;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-small:hover {
+  background: #f9f9f9;
+  border-color: #0d7377;
+  color: #0d7377;
+}
+
+/* Triggers Grid */
+.triggers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 20px;
+  padding: 24px;
+}
+
+.trigger-card {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.trigger-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border-color: #0d7377;
+}
+
+.trigger-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trigger-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.trigger-toggle {
+  width: 44px;
+  height: 24px;
+  background: #ddd;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.trigger-toggle.active { background: #00875a; }
+
+.trigger-toggle::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  top: 3px;
+  left: 3px;
+  transition: left 0.3s;
+}
+
+.trigger-toggle.active::after { left: 23px; }
+
+.trigger-body {
+  padding: 16px 20px;
+}
+
+.trigger-field {
+  margin-bottom: 12px;
+}
+
+.trigger-field:last-child { margin-bottom: 0; }
+
+.trigger-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.trigger-value {
+  font-size: 13px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.event-badge {
+  background: #e6f4f5;
+  color: #0d7377;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: 'Courier New', monospace;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.active {
+  background: #e3fcef;
+  color: #006644;
+}
+
+.status-badge.inactive {
+  background: #f4f5f7;
+  color: #999;
+}
+
+.trigger-actions {
+  display: flex;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #f9f9f9;
+  border-top: 1px solid #f0f0f0;
+}
+
+.empty-state {
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.2;
+}
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 24px;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📬 CommsHub Notification Management</h1>
+</div>
+
+<nav class="nav">
+  <a href="#" class="nav-item">Home</a>
+  <a href="#" class="nav-item active">Templates</a>
+  <a href="#" class="nav-item">Notifications</a>
+  <a href="#" class="nav-item">Partner Settings</a>
+  <a href="#" class="nav-item">Business View</a>
+</nav>
+
+<div class="container">
+  
+  <div class="page-header">
+    <h2>Templates & Triggers</h2>
+    <p>Manage email templates and configure automated notification triggers</p>
+  </div>
+
+  <!-- Tab Navigation -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('templates')">
+      📝 Templates
+      <span class="tab-count">12</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('triggers')">
+      🎯 Automated Triggers
+      <span class="tab-count">8</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab('variables')">
+      🔗 Variables
+      <span class="tab-count">24</span>
+    </button>
+  </div>
+
+  <!-- Templates Tab -->
+  <div class="tab-content active" id="templatesTab">
+    <div class="content-header">
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search templates..." />
+        <select class="btn-secondary" style="padding: 10px 12px;">
+          <option>All Categories</option>
+          <option>Onboarding</option>
+          <option>Transactional</option>
+          <option>Account Management</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="createTemplate()">+ Create Template</button>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Template Name</th>
+            <th>Notification Type</th>
+            <th>Category</th>
+            <th>Active Triggers</th>
+            <th>Last Modified</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="editTemplate('doc-request')">
+            <td>
+              <div class="template-name">Document Request - Drivers License</div>
+              <div class="template-category">Request additional documentation from merchant</div>
+            </td>
+            <td><span class="type-badge">document_request</span></td>
+            <td>Onboarding</td>
+            <td>
+              <span class="trigger-count">⚡ 2 triggers</span>
+            </td>
+            <td>Feb 15, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('doc-request')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('doc-request')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('approval')">
+            <td>
+              <div class="template-name">Application Approved</div>
+              <div class="template-category">Confirmation when application is approved</div>
+            </td>
+            <td><span class="type-badge">application_approved</span></td>
+            <td>Onboarding</td>
+            <td>
+              <span class="trigger-count">⚡ 2 triggers</span>
+            </td>
+            <td>Feb 12, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('approval')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('approval')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('payment-receipt')">
+            <td>
+              <div class="template-name">Payment Confirmation</div>
+              <div class="template-category">Receipt sent after successful payment</div>
+            </td>
+            <td><span class="type-badge">payment_receipt</span></td>
+            <td>Transactional</td>
+            <td>
+              <span class="trigger-count">⚡ 1 trigger</span>
+            </td>
+            <td>Feb 10, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('payment-receipt')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('payment-receipt')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('checkout-link')">
+            <td>
+              <div class="template-name">Checkout Link Delivery</div>
+              <div class="template-category">Send payment link to merchant's customer</div>
+            </td>
+            <td><span class="type-badge">checkout_link</span></td>
+            <td>Transactional</td>
+            <td>
+              <span class="trigger-count">⚡ 1 trigger</span>
+            </td>
+            <td>Feb 8, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('checkout-link')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('checkout-link')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('step-up')">
+            <td>
+              <div class="template-name">Identity Verification Required</div>
+              <div class="template-category">Request identity verification (step-up)</div>
+            </td>
+            <td><span class="type-badge">step_up</span></td>
+            <td>Account Management</td>
+            <td>
+              <span class="trigger-count">⚡ 1 trigger</span>
+            </td>
+            <td>Feb 5, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('step-up')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('step-up')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('bank-statement')">
+            <td>
+              <div class="template-name">Document Request - Bank Statement</div>
+              <div class="template-category">Request bank statement from merchant</div>
+            </td>
+            <td><span class="type-badge">document_request</span></td>
+            <td>Onboarding</td>
+            <td>
+              <span class="trigger-count zero">No triggers</span>
+            </td>
+            <td>Jan 28, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('bank-statement')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('bank-statement')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editTemplate('declined')">
+            <td>
+              <div class="template-name">Application Declined</div>
+              <div class="template-category">Notification when application is declined</div>
+            </td>
+            <td><span class="type-badge">application_status</span></td>
+            <td>Onboarding</td>
+            <td>
+              <span class="trigger-count">⚡ 1 trigger</span>
+            </td>
+            <td>Jan 22, 2026</td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editTemplate('declined')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewTriggers('declined')">🎯 Triggers</button>
+                <button class="btn-small" onclick="previewTemplate()">👁 Preview</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Triggers Tab -->
+  <div class="tab-content" id="triggersTab">
+    <div class="content-header">
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search triggers..." />
+        <select class="btn-secondary" style="padding: 10px 12px;">
+          <option>All Statuses</option>
+          <option>Active</option>
+          <option>Inactive</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="createTrigger()">+ Create Trigger</button>
+    </div>
+
+    <div class="triggers-grid">
+      
+      <!-- Trigger Card 1 -->
+      <div class="trigger-card">
+        <div class="trigger-header">
+          <div class="trigger-title">Document Request - RFI</div>
+          <div class="trigger-toggle active" onclick="toggleTrigger(this)"></div>
+        </div>
+        <div class="trigger-body">
+          <div class="trigger-field">
+            <div class="trigger-label">Event</div>
+            <div class="trigger-value">
+              Application Status → <span class="event-badge">NEED_INFORMATION</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Template</div>
+            <div class="trigger-value">
+              Document Request - Drivers License
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Activity</div>
+            <div class="trigger-value">
+              Last: Today, 2:14 PM <span style="color: #999;">(23 today)</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Status</div>
+            <div class="trigger-value">
+              <span class="status-badge active">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="trigger-actions">
+          <button class="btn-small" style="flex: 1;" onclick="editTrigger()">✏️ Edit</button>
+          <button class="btn-small" style="flex: 1;" onclick="viewLogs()">📊 Logs</button>
+        </div>
+      </div>
+
+      <!-- Trigger Card 2 -->
+      <div class="trigger-card">
+        <div class="trigger-header">
+          <div class="trigger-title">Application Approved</div>
+          <div class="trigger-toggle active" onclick="toggleTrigger(this)"></div>
+        </div>
+        <div class="trigger-body">
+          <div class="trigger-field">
+            <div class="trigger-label">Event</div>
+            <div class="trigger-value">
+              Application Status → <span class="event-badge">APPROVED</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Template</div>
+            <div class="trigger-value">
+              Application Approved
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Activity</div>
+            <div class="trigger-value">
+              Last: Today, 11:42 AM <span style="color: #999;">(8 today)</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Status</div>
+            <div class="trigger-value">
+              <span class="status-badge active">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="trigger-actions">
+          <button class="btn-small" style="flex: 1;" onclick="editTrigger()">✏️ Edit</button>
+          <button class="btn-small" style="flex: 1;" onclick="viewLogs()">📊 Logs</button>
+        </div>
+      </div>
+
+      <!-- Trigger Card 3 -->
+      <div class="trigger-card">
+        <div class="trigger-header">
+          <div class="trigger-title">Payment Receipt</div>
+          <div class="trigger-toggle active" onclick="toggleTrigger(this)"></div>
+        </div>
+        <div class="trigger-body">
+          <div class="trigger-field">
+            <div class="trigger-label">Event</div>
+            <div class="trigger-value">
+              Payment → <span class="event-badge">SUCCESSFUL</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Template</div>
+            <div class="trigger-value">
+              Payment Confirmation
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Activity</div>
+            <div class="trigger-value">
+              Last: Today, 3:08 PM <span style="color: #999;">(142 today)</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Status</div>
+            <div class="trigger-value">
+              <span class="status-badge active">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="trigger-actions">
+          <button class="btn-small" style="flex: 1;" onclick="editTrigger()">✏️ Edit</button>
+          <button class="btn-small" style="flex: 1;" onclick="viewLogs()">📊 Logs</button>
+        </div>
+      </div>
+
+      <!-- Trigger Card 4 - Inactive -->
+      <div class="trigger-card" style="opacity: 0.6;">
+        <div class="trigger-header">
+          <div class="trigger-title">Identity Verification</div>
+          <div class="trigger-toggle" onclick="toggleTrigger(this)"></div>
+        </div>
+        <div class="trigger-body">
+          <div class="trigger-field">
+            <div class="trigger-label">Event</div>
+            <div class="trigger-value">
+              Identity Check → <span class="event-badge">REQUIRED</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Template</div>
+            <div class="trigger-value">
+              Identity Verification Required
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Activity</div>
+            <div class="trigger-value">
+              <span style="color: #999;">Never triggered</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Status</div>
+            <div class="trigger-value">
+              <span class="status-badge inactive">Inactive</span>
+            </div>
+          </div>
+        </div>
+        <div class="trigger-actions">
+          <button class="btn-small" style="flex: 1;" onclick="editTrigger()">✏️ Edit</button>
+          <button class="btn-small" style="flex: 1;" onclick="viewLogs()">📊 Logs</button>
+        </div>
+      </div>
+
+      <!-- More trigger cards... -->
+      <div class="trigger-card">
+        <div class="trigger-header">
+          <div class="trigger-title">Checkout Link Sent</div>
+          <div class="trigger-toggle active" onclick="toggleTrigger(this)"></div>
+        </div>
+        <div class="trigger-body">
+          <div class="trigger-field">
+            <div class="trigger-label">Event</div>
+            <div class="trigger-value">
+              Checkout Session → <span class="event-badge">CREATED</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Template</div>
+            <div class="trigger-value">
+              Checkout Link Delivery
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Activity</div>
+            <div class="trigger-value">
+              Last: Today, 3:22 PM <span style="color: #999;">(67 today)</span>
+            </div>
+          </div>
+          <div class="trigger-field">
+            <div class="trigger-label">Status</div>
+            <div class="trigger-value">
+              <span class="status-badge active">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="trigger-actions">
+          <button class="btn-small" style="flex: 1;" onclick="editTrigger()">✏️ Edit</button>
+          <button class="btn-small" style="flex: 1;" onclick="viewLogs()">📊 Logs</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Variables Tab -->
+  <div class="tab-content" id="variablesTab">
+    <div class="content-header">
+      <div class="search-bar">
+        <input type="text" class="search-input" placeholder="Search variables..." />
+        <select class="btn-secondary" style="padding: 10px 12px;">
+          <option>All Types</option>
+          <option>Text</option>
+          <option>Link</option>
+          <option>Conditional</option>
+        </select>
+        <select class="btn-secondary" style="padding: 10px 12px;">
+          <option>All Categories</option>
+          <option>Merchant</option>
+          <option>Partner</option>
+          <option>Documents</option>
+          <option>Links & Actions</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" onclick="createVariable()">+ Create Variable</button>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Variable Name</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Description / URL Template</th>
+            <th>Usage</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Text Variables -->
+          <tr onclick="editVariable('first_name')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{first_name}}</div>
+            </td>
+            <td><span class="type-badge">Text</span></td>
+            <td>Merchant</td>
+            <td style="color: #666; font-size: 13px;">Merchant's first name</td>
+            <td>
+              <span class="trigger-count">12 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('first_name')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('first_name')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('partner_name')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{partner_name}}</div>
+            </td>
+            <td><span class="type-badge">Text</span></td>
+            <td>Partner</td>
+            <td style="color: #666; font-size: 13px;">Partner's display name</td>
+            <td>
+              <span class="trigger-count">12 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('partner_name')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('partner_name')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Link Variables -->
+          <tr onclick="editVariable('upload_link')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{upload_link}}</div>
+            </td>
+            <td><span class="type-badge" style="background: #e6f4f5; color: #0d7377;">Link</span></td>
+            <td>Links & Actions</td>
+            <td>
+              <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Document upload link for merchant</div>
+              <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #999; background: #f9f9f9; padding: 4px 8px; border-radius: 3px; display: inline-block;">
+                https://merchants.getfwd.com/applications/{{application_id}}/upload
+              </div>
+            </td>
+            <td>
+              <span class="trigger-count">8 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('upload_link')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('upload_link')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('bank_statement_upload_link')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{bank_statement_upload_link}}</div>
+            </td>
+            <td><span class="type-badge" style="background: #e6f4f5; color: #0d7377;">Link</span></td>
+            <td>Links & Actions</td>
+            <td>
+              <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Direct link to bank statement upload</div>
+              <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #999; background: #f9f9f9; padding: 4px 8px; border-radius: 3px; display: inline-block;">
+                https://merchants.getfwd.com/applications/{{application_id}}/documents?type=bank_statement
+              </div>
+            </td>
+            <td>
+              <span class="trigger-count">3 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('bank_statement_upload_link')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('bank_statement_upload_link')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('kyc_verification_link')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{kyc_verification_link}}</div>
+            </td>
+            <td><span class="type-badge" style="background: #e6f4f5; color: #0d7377;">Link</span></td>
+            <td>Links & Actions</td>
+            <td>
+              <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Identity verification (step-up) link</div>
+              <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #999; background: #f9f9f9; padding: 4px 8px; border-radius: 3px; display: inline-block;">
+                https://merchants.getfwd.com/verify/{{merchant_id}}?session={{verification_session_id}}
+              </div>
+            </td>
+            <td>
+              <span class="trigger-count">1 template</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('kyc_verification_link')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('kyc_verification_link')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('dashboard_link')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{dashboard_link}}</div>
+            </td>
+            <td><span class="type-badge" style="background: #e6f4f5; color: #0d7377;">Link</span></td>
+            <td>Links & Actions</td>
+            <td>
+              <div style="color: #666; font-size: 13px; margin-bottom: 4px;">Merchant dashboard home page</div>
+              <div style="font-family: 'Courier New', monospace; font-size: 11px; color: #999; background: #f9f9f9; padding: 4px 8px; border-radius: 3px; display: inline-block;">
+                https://merchants.getfwd.com/dashboard/{{merchant_id}}
+              </div>
+            </td>
+            <td>
+              <span class="trigger-count">6 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('dashboard_link')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('dashboard_link')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('doc_type')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{doc_type}}</div>
+            </td>
+            <td><span class="type-badge">Text</span></td>
+            <td>Documents</td>
+            <td style="color: #666; font-size: 13px;">Type of document requested (e.g., "Driver's License")</td>
+            <td>
+              <span class="trigger-count">5 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('doc_type')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('doc_type')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+          <tr onclick="editVariable('business_name')">
+            <td>
+              <div style="font-family: 'Courier New', monospace; font-weight: 600; color: #0d7377;">{{business_name}}</div>
+            </td>
+            <td><span class="type-badge">Text</span></td>
+            <td>Merchant</td>
+            <td style="color: #666; font-size: 13px;">Merchant's business/company name</td>
+            <td>
+              <span class="trigger-count">7 templates</span>
+            </td>
+            <td onclick="event.stopPropagation()">
+              <div class="action-buttons">
+                <button class="btn-small" onclick="editVariable('business_name')">✏️ Edit</button>
+                <button class="btn-small" onclick="viewUsage('business_name')">📊 Usage</button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Create/Edit Variable Modal -->
+<div class="modal" id="variableModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 999; align-items: center; justify-content: center;">
+  <div class="modal-content" style="background: white; border-radius: 8px; width: 90%; max-width: 700px; max-height: 90vh; overflow: hidden; box-shadow: 0 8px 32px rgba(0,0,0,0.3);">
+    <div class="modal-header" style="padding: 20px 24px; border-bottom: 1px solid #e5e5e5; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="font-size: 18px; font-weight: 600;">Create New Variable</h3>
+      <button class="modal-close" onclick="closeVariableModal()" style="background: none; border: none; font-size: 24px; color: #999; cursor: pointer; line-height: 1;">×</button>
+    </div>
+    <div class="modal-body" style="padding: 24px; max-height: calc(90vh - 160px); overflow-y: auto;">
+      
+      <div class="form-group">
+        <label>Variable Name <span style="color: #de350b;">*</span></label>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-family: 'Courier New', monospace; font-size: 14px; color: #999;">{{</span>
+          <input type="text" id="varName" placeholder="e.g., tax_form_upload_link" style="flex: 1; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: 'Courier New', monospace;" />
+          <span style="font-family: 'Courier New', monospace; font-size: 14px; color: #999;">}}</span>
+        </div>
+        <div style="font-size: 12px; color: #999; margin-top: 4px;">Use lowercase with underscores (e.g., bank_statement_link)</div>
+      </div>
+
+      <div class="form-group">
+        <label>Variable Type <span style="color: #de350b;">*</span></label>
+        <select id="varType" onchange="toggleURLField()" style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+          <option value="">Select type...</option>
+          <option value="text">Text - Simple text value</option>
+          <option value="link">Link - URL with dynamic parameters</option>
+          <option value="conditional">Conditional - Logic-based value</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Category <span style="color: #de350b;">*</span></label>
+        <select style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+          <option value="">Select category...</option>
+          <option value="merchant">Merchant / Account</option>
+          <option value="partner">Partner</option>
+          <option value="documents">Documents</option>
+          <option value="links">Links & Actions</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Description <span style="color: #de350b;">*</span></label>
+        <textarea placeholder="Describe when and how this variable should be used..." style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; min-height: 60px; font-family: inherit;"></textarea>
+        <div style="font-size: 12px; color: #999; margin-top: 4px;">This appears in the variable helper panel</div>
+      </div>
+
+      <div class="form-group" id="urlTemplateField" style="display: none;">
+        <label>URL Template <span style="color: #de350b;">*</span></label>
+        <input type="text" id="urlTemplate" placeholder="https://merchants.getfwd.com/..." style="width: 100%; padding: 10px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: 'Courier New', monospace;" />
+        <div style="font-size: 12px; color: #666; margin-top: 8px; background: #f9f9f9; padding: 12px; border-radius: 4px;">
+          <strong style="font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px;">Available Placeholders:</strong>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-family: 'Courier New', monospace; font-size: 11px;">
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{merchant_id}}</code></div>
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{application_id}}</code></div>
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{artifact_id}}</code></div>
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{document_type}}</code></div>
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{session_id}}</code></div>
+            <div><code style="background: #e5e5e5; padding: 2px 6px; border-radius: 3px;">{{partner_id}}</code></div>
+          </div>
+        </div>
+        <div style="font-size: 12px; color: #999; margin-top: 8px;">
+          <strong>Example:</strong><br>
+          <code style="font-family: 'Courier New', monospace; font-size: 11px; background: #f9f9f9; padding: 4px 8px; border-radius: 3px; display: inline-block; margin-top: 4px;">
+            https://merchants.getfwd.com/applications/{{application_id}}/documents?type={{document_type}}
+          </code>
+        </div>
+      </div>
+
+      <div class="form-group" style="background: #e6f4f5; padding: 12px; border-radius: 4px; border-left: 3px solid #0d7377;">
+        <div style="font-size: 12px; color: #0d7377;">
+          ℹ️ <strong>Note:</strong> Once saved, this variable will immediately appear in the template editor's variable helper panel for all users to use.
+        </div>
+      </div>
+
+    </div>
+    <div style="padding: 16px 24px; border-top: 1px solid #e5e5e5; display: flex; gap: 12px; justify-content: flex-end;">
+      <button class="btn btn-secondary" onclick="closeVariableModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveVariable()">Create Variable</button>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+function switchTab(tab) {
+  // Update tab buttons
+  document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  
+  // Update tab content
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  if (tab === 'templates') {
+    document.getElementById('templatesTab').classList.add('active');
+  } else if (tab === 'triggers') {
+    document.getElementById('triggersTab').classList.add('active');
+  } else if (tab === 'variables') {
+    document.getElementById('variablesTab').classList.add('active');
+  }
+}
+
+function createTemplate() {
+  alert('Opening template editor...');
+  // Would navigate to template editor
+}
+
+function editTemplate(id) {
+  alert('Opening template editor for: ' + id);
+  // Would navigate to template editor with template loaded
+}
+
+function viewTriggers(templateId) {
+  // Switch to triggers tab and filter by this template
+  document.querySelectorAll('.tab-btn')[1].click();
+  alert('Showing triggers for template: ' + templateId);
+}
+
+function previewTemplate() {
+  alert('Opening template preview...');
+}
+
+function createTrigger() {
+  alert('Opening trigger creation modal...');
+}
+
+function editTrigger() {
+  alert('Opening trigger editor...');
+}
+
+function viewLogs() {
+  alert('Opening trigger execution logs...');
+}
+
+function toggleTrigger(element) {
+  element.classList.toggle('active');
+  const card = element.closest('.trigger-card');
+  const statusBadge = card.querySelector('.status-badge');
+  
+  if (element.classList.contains('active')) {
+    card.style.opacity = '1';
+    statusBadge.textContent = 'Active';
+    statusBadge.className = 'status-badge active';
+  } else {
+    card.style.opacity = '0.6';
+    statusBadge.textContent = 'Inactive';
+    statusBadge.className = 'status-badge inactive';
+  }
+}
+
+function createVariable() {
+  document.getElementById('variableModal').style.display = 'flex';
+}
+
+function closeVariableModal() {
+  document.getElementById('variableModal').style.display = 'none';
+}
+
+function editVariable(varName) {
+  alert('Opening variable editor for: ' + varName);
+  document.getElementById('variableModal').style.display = 'flex';
+}
+
+function viewUsage(varName) {
+  alert('Showing templates using variable: ' + varName);
+}
+
+function toggleURLField() {
+  const varType = document.getElementById('varType').value;
+  const urlField = document.getElementById('urlTemplateField');
+  
+  if (varType === 'link') {
+    urlField.style.display = 'block';
+  } else {
+    urlField.style.display = 'none';
+  }
+}
+
+function saveVariable() {
+  const varName = document.getElementById('varName').value;
+  const varType = document.getElementById('varType').value;
+  
+  if (!varName || !varType) {
+    alert('⚠️ Please fill in all required fields');
+    return;
+  }
+  
+  alert('✓ Variable {{' + varName + '}} created successfully!\n\nIt is now available in the template editor variable helper panel.');
+  closeVariableModal();
+}
+</script>
+
+
+</body>
+</html>
